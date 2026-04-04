@@ -3,16 +3,20 @@ package com.example.ecsite.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "product_image")
 public class ProductImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
     private Integer imageNo;
     @Lob
     private byte[] image;
+
+    public ProductImage() {}
+
     // getter/setter
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

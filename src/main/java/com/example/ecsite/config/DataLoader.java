@@ -48,11 +48,12 @@ public class DataLoader {
                 product.setPrice(50000);
                 product.setCategory(cat);
                 productRepository.save(product);
-                // 商品画像（ダミー）
+                // 商品画像（プレースホルダーPNG）
                 ProductImage img = new ProductImage();
                 img.setProduct(product);
                 img.setImageNo(1);
-                img.setImage(new byte[]{0}); // ダミー
+                // 1x1透明PNG (Base64: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/w8AAgMBAp9n8gAAAABJRU5ErkJggg==)
+                img.setImage(java.util.Base64.getDecoder().decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/w8AAgMBAp9n8gAAAABJRU5ErkJggg=="));
                 productImageRepository.save(img);
                 // 在庫
                 Stock stock = new Stock();

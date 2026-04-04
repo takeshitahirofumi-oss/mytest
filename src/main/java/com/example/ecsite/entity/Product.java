@@ -3,15 +3,19 @@ package com.example.ecsite.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name = "product")
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productId;
     private String productName;
     private Integer price;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private Category category;
+
+    public Product() {}
+
     // getter/setter
     public Long getProductId() { return productId; }
     public void setProductId(Long productId) { this.productId = productId; }
