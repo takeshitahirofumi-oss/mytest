@@ -31,3 +31,33 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Java
+/target/
+*.class
+
+# Maven
+/logs/
+*.log
+
+# IntelliJ
+/.idea/
+*.iml
+
+# Eclipse
+/.settings/
+/.classpath
+/.project
+
+# macOS
+.DS_Store
+
+# VSCode
+.vscode/
+
+# OS/エディタ共通
+*~
+*.swp
+
+# その他
+/node_modules/
