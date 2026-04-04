@@ -34,7 +34,7 @@ public class ProductService {
     public int getTotalStock(Long productId) {
         return stockRepository.findAll().stream()
                 .filter(s -> s.getProduct().getProductId().equals(productId))
-                .mapToInt(Stock::getQuantity)
+                .mapToInt(s -> s.getQuantity() != null ? s.getQuantity() : 0)
                 .sum();
     }
 }
