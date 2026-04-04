@@ -28,8 +28,8 @@ public class DataLoader {
                 user.setPassword("{bcrypt}" + encoder.encode("testpass"));
                 userRepository.save(user);
             }
-            // エリア
-            if (areaRepository.count() == 0) {
+            // サンプル商品関連データ
+            if (productRepository.count() == 0) {
                 Area area = new Area();
                 area.setAreaName("東日本");
                 areaRepository.save(area);
