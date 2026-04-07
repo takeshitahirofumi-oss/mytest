@@ -85,6 +85,7 @@ jobs:
               "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${IMAGE_URI%%/*}",
               "docker pull ${IMAGE_URI}",
               "docker rm -f ${CONTAINER_NAME} || true",
+              "docker ps --filter publish=${APP_PORT} --format '{{.ID}}' | xargs -r docker rm -f",
               "if [ ! -f /opt/ecsite/.env ]; then echo '/opt/ecsite/.env not found'; exit 1; fi",
               "docker run -d --name ${CONTAINER_NAME} --restart unless-stopped -p ${APP_PORT}:8080 --env-file /opt/ecsite/.env ${IMAGE_URI}",
               "docker image prune -f"
