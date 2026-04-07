@@ -1,5 +1,6 @@
 package com.example.ecsite.service;
 
+// 商品情報の取得・操作を担当するサービスクラス
 import com.example.ecsite.entity.Product;
 import com.example.ecsite.entity.ProductImage;
 import com.example.ecsite.entity.Stock;
@@ -15,14 +16,20 @@ import java.util.Optional;
 @Service
 public class ProductService {
     @Autowired
-    private ProductRepository productRepository;
+    private ProductRepository productRepository; // 商品情報のDBアクセスを担当
     @Autowired
     private ProductImageRepository productImageRepository;
     @Autowired
     private StockRepository stockRepository;
 
+    // 全商品を取得
     public List<Product> findAll() {
         return productRepository.findAll();
+    }
+
+    // 商品IDで商品を取得
+    public Optional<Product> findById(Long id) {
+        return productRepository.findById(id);
     }
 
     public Optional<ProductImage> findFirstImage(Long productId) {

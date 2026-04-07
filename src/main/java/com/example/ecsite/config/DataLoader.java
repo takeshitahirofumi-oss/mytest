@@ -1,5 +1,6 @@
 package com.example.ecsite.config;
 
+// サンプルデータをDBに投入するための設定クラス
 import com.example.ecsite.entity.*;
 import com.example.ecsite.repository.*;
 import org.springframework.boot.CommandLineRunner;
@@ -20,46 +21,45 @@ public class DataLoader {
                                       WarehouseRepository warehouseRepository,
                                       AreaRepository areaRepository) {
         return args -> {
-            // ユーザー
+            // ユーザーが未登録ならサンプルユーザーを作成
             if (userRepository.count() == 0) {
                 PasswordEncoder encoder = new BCryptPasswordEncoder();
                 User user = new User();
-                user.setUserId("testuser");
-                user.setPassword("{bcrypt}" + encoder.encode("testpass"));
+                user.setUserId("testuser"); // ユーザーID
+                user.setPassword("{bcrypt}" + encoder.encode("testpass")); // パスワード（bcryptでハッシュ化）
                 userRepository.save(user);
             }
-            // サンプル商品関連データ
+            // 商品が未登録ならサンプル商品データ一式を作成
             if (productRepository.count() == 0) {
-                Area area = new Area();
-                area.setAreaName("東日本");
+                Area area = new Area(); // 地域エンティティ
+                area.setAreaName("東日本"); // 地域名
                 areaRepository.save(area);
-                // 倉庫
+                // 倉庫エンティティ
                 Warehouse warehouse = new Warehouse();
-                warehouse.setWarehouseName("東京倉庫");
-                warehouse.setArea(area);
+                warehouse.setWarehouseName("東京倉庫"); // 倉庫名
+                warehouse.setArea(area); // 地域と紐付け
                 warehouseRepository.save(warehouse);
-                // カテゴリ
+                // カテゴリエンティティ
                 Category cat = new Category();
-                cat.setCategoryName("家電");
+                cat.setCategoryName("家電"); // カテゴリ名
                 categoryRepository.save(cat);
-                // 商品
+                // 商品エンティティ
                 Product product = new Product();
-                product.setProductName("サンプルテレビ");
-                product.setPrice(50000);
-                product.setCategory(cat);
+                product.setProductName("サンプルテレビ"); // 商品名
+                product.setPrice(50000); // 価格
+                product.setCategory(cat); // カテゴリと紐付け
                 productRepository.save(product);
-                // 商品画像（プレースホルダーPNG）
+                // 商品画像エンティティ（1x1透明PNGのBase64データをデコードして保存）
                 ProductImage img = new ProductImage();
-                img.setProduct(product);
-                img.setImageNo(1);
-                // 1x1透明PNG (Base64: iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/w8AAgMBAp9n8gAAAABJRU5ErkJggg==)
+                img.setProduct(product); // 商品と紐付け
+                img.setImageNo(1); // 画像番号
                 img.setImage(java.util.Base64.getDecoder().decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/w8AAgMBAp9n8gAAAABJRU5ErkJggg=="));
                 productImageRepository.save(img);
-                // 在庫
+                // 在庫エンティティ
                 Stock stock = new Stock();
-                stock.setProduct(product);
-                stock.setWarehouse(warehouse);
-                stock.setQuantity(10);
+                stock.setProduct(product); // 商品と紐付け
+                stock.setWarehouse(warehouse); // 倉庫と紐付け
+                stock.setQuantity(10); // 在庫数
                 stockRepository.save(stock);
             }
         };
