@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -77,26 +78,42 @@ class DataLoaderTest {
         assertEquals("家電", categoryCaptor.getValue().getCategoryName());
 
         ArgumentCaptor<Product> productCaptor = ArgumentCaptor.forClass(Product.class);
-        verify(productRepository).save(productCaptor.capture());
-        Product savedProduct = productCaptor.getValue();
+        verify(productRepository, times(2)).save(productCaptor.capture());
+        Product savedProduct = productCaptor.getAllValues().get(0);
         assertEquals("サンプルテレビ", savedProduct.getProductName());
         assertEquals(50000, savedProduct.getPrice());
         assertNotNull(savedProduct.getCategory());
 
+        Product savedProduct2 = productCaptor.getAllValues().get(1);
+        assertEquals("サンプル冷蔵庫", savedProduct2.getProductName());
+        assertEquals(80000, savedProduct2.getPrice());
+        assertNotNull(savedProduct2.getCategory());
+
         ArgumentCaptor<ProductImage> imageCaptor = ArgumentCaptor.forClass(ProductImage.class);
-        verify(productImageRepository).save(imageCaptor.capture());
-        ProductImage savedImage = imageCaptor.getValue();
+        verify(productImageRepository, times(2)).save(imageCaptor.capture());
+        ProductImage savedImage = imageCaptor.getAllValues().get(0);
         assertEquals(1, savedImage.getImageNo());
         assertNotNull(savedImage.getProduct());
         assertNotNull(savedImage.getImage());
         assertTrue(savedImage.getImage().length > 0);
 
+        ProductImage savedImage2 = imageCaptor.getAllValues().get(1);
+        assertEquals(1, savedImage2.getImageNo());
+        assertNotNull(savedImage2.getProduct());
+        assertNotNull(savedImage2.getImage());
+        assertTrue(savedImage2.getImage().length > 0);
+
         ArgumentCaptor<Stock> stockCaptor = ArgumentCaptor.forClass(Stock.class);
-        verify(stockRepository).save(stockCaptor.capture());
-        Stock savedStock = stockCaptor.getValue();
+        verify(stockRepository, times(2)).save(stockCaptor.capture());
+        Stock savedStock = stockCaptor.getAllValues().get(0);
         assertEquals(10, savedStock.getQuantity());
         assertNotNull(savedStock.getProduct());
         assertNotNull(savedStock.getWarehouse());
+
+        Stock savedStock2 = stockCaptor.getAllValues().get(1);
+        assertEquals(5, savedStock2.getQuantity());
+        assertNotNull(savedStock2.getProduct());
+        assertNotNull(savedStock2.getWarehouse());
     }
 
     @Test

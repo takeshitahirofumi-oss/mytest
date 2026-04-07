@@ -61,6 +61,27 @@ public class DataLoader {
                 stock.setWarehouse(warehouse); // 倉庫と紐付け
                 stock.setQuantity(10); // 在庫数
                 stockRepository.save(stock);
+
+                // 2件目の商品エンティティ
+                Product product2 = new Product();
+                product2.setProductName("サンプル冷蔵庫"); // 商品名
+                product2.setPrice(80000); // 価格
+                product2.setCategory(cat); // カテゴリと紐付け
+                productRepository.save(product2);
+
+                // 2件目の商品画像
+                ProductImage img2 = new ProductImage();
+                img2.setProduct(product2);
+                img2.setImageNo(1);
+                img2.setImage(java.util.Base64.getDecoder().decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/w8AAgMBAp9n8gAAAABJRU5ErkJggg=="));
+                productImageRepository.save(img2);
+
+                // 2件目の在庫
+                Stock stock2 = new Stock();
+                stock2.setProduct(product2);
+                stock2.setWarehouse(warehouse);
+                stock2.setQuantity(5);
+                stockRepository.save(stock2);
             }
         };
     }
