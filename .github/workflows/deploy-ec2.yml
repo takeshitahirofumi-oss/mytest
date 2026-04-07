@@ -103,8 +103,8 @@ jobs:
               "test -f /opt/ecsite/.env || { echo '/opt/ecsite/.env not found'; exit 1; }",
               "docker run -d --name ${CONTAINER_NAME} --restart unless-stopped -p ${APP_PORT}:8080 --env-file /opt/ecsite/.env ${IMAGE_URI}",
               "HEALTH_OK=0",
-              "for i in $(seq 1 18); do code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:${APP_PORT}/ || true); echo $code | grep -Eq '^(200|302|401|403)$' && HEALTH_OK=1 && break; sleep 5; done",
-              "if [ ${HEALTH_OK} -ne 1 ]; then echo 'Health check failed. Starting rollback.'; docker logs --tail 100 ${CONTAINER_NAME} || true; docker rm -f ${CONTAINER_NAME} || true; if [ -n \"${PREV_IMAGE}\" ]; then docker run -d --name ${CONTAINER_NAME} --restart unless-stopped -p ${APP_PORT}:8080 --env-file /opt/ecsite/.env ${PREV_IMAGE}; echo \"Rollback completed: ${PREV_IMAGE}\"; else echo 'Rollback skipped: previous image not found'; fi; exit 1; fi",
+              "for i in $(seq 1 18); do code=$(curl -s -o /dev/null -w '%{http_code}' http://localhost:${APP_PORT}/ || true); echo \$code | grep -Eq '^(200|302|401|403)$' && HEALTH_OK=1 && break; sleep 5; done",
+              "if [ \${HEALTH_OK} -ne 1 ]; then echo 'Health check failed. Starting rollback.'; docker logs --tail 100 ${CONTAINER_NAME} || true; docker rm -f ${CONTAINER_NAME} || true; if [ -n \"\${PREV_IMAGE}\" ]; then docker run -d --name ${CONTAINER_NAME} --restart unless-stopped -p ${APP_PORT}:8080 --env-file /opt/ecsite/.env \${PREV_IMAGE}; echo \"Rollback completed: \${PREV_IMAGE}\"; else echo 'Rollback skipped: previous image not found'; fi; exit 1; fi",
               "docker image prune -f"
             ]
           }
