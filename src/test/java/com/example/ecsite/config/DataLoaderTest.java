@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.boot.CommandLineRunner;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -40,8 +42,19 @@ class DataLoaderTest {
         WarehouseRepository warehouseRepository = mock(WarehouseRepository.class);
         AreaRepository areaRepository = mock(AreaRepository.class);
 
-        when(userRepository.count()).thenReturn(0L);
-        when(productRepository.count()).thenReturn(0L);
+        when(userRepository.findByUserId("testuser")).thenReturn(null);
+        when(areaRepository.findAll()).thenReturn(List.of());
+        when(warehouseRepository.findAll()).thenReturn(List.of());
+        when(categoryRepository.findAll()).thenReturn(List.of());
+        when(productRepository.findAll()).thenReturn(List.of());
+        when(productImageRepository.findAll()).thenReturn(List.of());
+        when(stockRepository.findAll()).thenReturn(List.of());
+        when(areaRepository.save(any(Area.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(warehouseRepository.save(any(Warehouse.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(categoryRepository.save(any(Category.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(productImageRepository.save(any(ProductImage.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(stockRepository.save(any(Stock.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         DataLoader dataLoader = new DataLoader();
         CommandLineRunner runner = dataLoader.loadData(
@@ -126,8 +139,50 @@ class DataLoaderTest {
         WarehouseRepository warehouseRepository = mock(WarehouseRepository.class);
         AreaRepository areaRepository = mock(AreaRepository.class);
 
-        when(userRepository.count()).thenReturn(1L);
-        when(productRepository.count()).thenReturn(1L);
+        User existingUser = new User();
+        existingUser.setUserId("testuser");
+        when(userRepository.findByUserId("testuser")).thenReturn(existingUser);
+
+        Area area = new Area();
+        area.setAreaName("東日本");
+
+        Warehouse warehouse = new Warehouse();
+        warehouse.setWarehouseName("東京倉庫");
+        warehouse.setArea(area);
+
+        Category category = new Category();
+        category.setCategoryName("家電");
+
+        Product product1 = new Product();
+        product1.setProductName("サンプルテレビ");
+        product1.setCategory(category);
+
+        Product product2 = new Product();
+        product2.setProductName("サンプル冷蔵庫");
+        product2.setCategory(category);
+
+        ProductImage image1 = new ProductImage();
+        image1.setProduct(product1);
+        image1.setImageNo(1);
+
+        ProductImage image2 = new ProductImage();
+        image2.setProduct(product2);
+        image2.setImageNo(1);
+
+        Stock stock1 = new Stock();
+        stock1.setProduct(product1);
+        stock1.setWarehouse(warehouse);
+
+        Stock stock2 = new Stock();
+        stock2.setProduct(product2);
+        stock2.setWarehouse(warehouse);
+
+        when(areaRepository.findAll()).thenReturn(List.of(area));
+        when(warehouseRepository.findAll()).thenReturn(List.of(warehouse));
+        when(categoryRepository.findAll()).thenReturn(List.of(category));
+        when(productRepository.findAll()).thenReturn(List.of(product1, product2));
+        when(productImageRepository.findAll()).thenReturn(List.of(image1, image2));
+        when(stockRepository.findAll()).thenReturn(List.of(stock1, stock2));
 
         DataLoader dataLoader = new DataLoader();
         CommandLineRunner runner = dataLoader.loadData(

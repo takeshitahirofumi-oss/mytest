@@ -12,6 +12,8 @@ import java.util.*;
 
 @Configuration
 public class DataLoader {
+    private static final String PLACEHOLDER_PNG_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/w8AAgMBAp9n8gAAAABJRU5ErkJggg==";
+
     @Bean
     public CommandLineRunner loadData(UserRepository userRepository,
                                       CategoryRepository categoryRepository,
@@ -21,68 +23,94 @@ public class DataLoader {
                                       WarehouseRepository warehouseRepository,
                                       AreaRepository areaRepository) {
         return args -> {
-            // ユーザーが未登録ならサンプルユーザーを作成
-            if (userRepository.count() == 0) {
+            // サンプルユーザーが未登録なら作成
+            if (userRepository.findByUserId("testuser") == null) {
                 PasswordEncoder encoder = new BCryptPasswordEncoder();
                 User user = new User();
                 user.setUserId("testuser"); // ユーザーID
                 user.setPassword("{bcrypt}" + encoder.encode("testpass")); // パスワード（bcryptでハッシュ化）
                 userRepository.save(user);
             }
-            // 商品が未登録ならサンプル商品データ一式を作成
-            if (productRepository.count() == 0) {
-                Area area = new Area(); // 地域エンティティ
-                area.setAreaName("東日本"); // 地域名
-                areaRepository.save(area);
-                // 倉庫エンティティ
-                Warehouse warehouse = new Warehouse();
-                warehouse.setWarehouseName("東京倉庫"); // 倉庫名
-                warehouse.setArea(area); // 地域と紐付け
-                warehouseRepository.save(warehouse);
-                // カテゴリエンティティ
-                Category cat = new Category();
-                cat.setCategoryName("家電"); // カテゴリ名
-                categoryRepository.save(cat);
-                // 商品エンティティ
-                Product product = new Product();
-                product.setProductName("サンプルテレビ"); // 商品名
-                product.setPrice(50000); // 価格
-                product.setCategory(cat); // カテゴリと紐付け
-                productRepository.save(product);
-                // 商品画像エンティティ（1x1透明PNGのBase64データをデコードして保存）
-                ProductImage img = new ProductImage();
-                img.setProduct(product); // 商品と紐付け
-                img.setImageNo(1); // 画像番号
-                img.setImage(java.util.Base64.getDecoder().decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/w8AAgMBAp9n8gAAAABJRU5ErkJggg=="));
-                productImageRepository.save(img);
-                // 在庫エンティティ
-                Stock stock = new Stock();
-                stock.setProduct(product); // 商品と紐付け
-                stock.setWarehouse(warehouse); // 倉庫と紐付け
-                stock.setQuantity(10); // 在庫数
-                stockRepository.save(stock);
 
-                // 2件目の商品エンティティ
-                Product product2 = new Product();
-                product2.setProductName("サンプル冷蔵庫"); // 商品名
-                product2.setPrice(80000); // 価格
-                product2.setCategory(cat); // カテゴリと紐付け
-                productRepository.save(product2);
+            Area area = areaRepository.findAll().stream()
+                    .filter(a -> "東日本".equals(a.getAreaName()))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        Area a = new Area();
+                        a.setAreaName("東日本");
+                        return areaRepository.save(a);
+                    });
 
-                // 2件目の商品画像
-                ProductImage img2 = new ProductImage();
-                img2.setProduct(product2);
-                img2.setImageNo(1);
-                img2.setImage(java.util.Base64.getDecoder().decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/w8AAgMBAp9n8gAAAABJRU5ErkJggg=="));
-                productImageRepository.save(img2);
+            Warehouse warehouse = warehouseRepository.findAll().stream()
+                    .filter(w -> "東京倉庫".equals(w.getWarehouseName()))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        Warehouse w = new Warehouse();
+                        w.setWarehouseName("東京倉庫");
+                        w.setArea(area);
+                        return warehouseRepository.save(w);
+                    });
 
-                // 2件目の在庫
-                Stock stock2 = new Stock();
-                stock2.setProduct(product2);
-                stock2.setWarehouse(warehouse);
-                stock2.setQuantity(5);
-                stockRepository.save(stock2);
-            }
+            Category category = categoryRepository.findAll().stream()
+                    .filter(c -> "家電".equals(c.getCategoryName()))
+                    .findFirst()
+                    .orElseGet(() -> {
+                        Category c = new Category();
+                        c.setCategoryName("家電");
+                        return categoryRepository.save(c);
+                    });
+
+            ensureSampleProduct("サンプルテレビ", 50000, 10, category, warehouse,
+                    productRepository, productImageRepository, stockRepository);
+            ensureSampleProduct("サンプル冷蔵庫", 80000, 5, category, warehouse,
+                    productRepository, productImageRepository, stockRepository);
         };
+    }
+
+    private void ensureSampleProduct(String productName,
+                                     int price,
+                                     int quantity,
+                                     Category category,
+                                     Warehouse warehouse,
+                                     ProductRepository productRepository,
+                                     ProductImageRepository productImageRepository,
+                                     StockRepository stockRepository) {
+        Product product = productRepository.findAll().stream()
+                .filter(p -> productName.equals(p.getProductName()))
+                .findFirst()
+                .orElseGet(() -> {
+                    Product p = new Product();
+                    p.setProductName(productName);
+                    p.setPrice(price);
+                    p.setCategory(category);
+                    return productRepository.save(p);
+                });
+
+        boolean hasImage = productImageRepository.findAll().stream()
+                .anyMatch(img -> img.getProduct() != null
+                        && productName.equals(img.getProduct().getProductName())
+                        && Integer.valueOf(1).equals(img.getImageNo()));
+
+        if (!hasImage) {
+            ProductImage image = new ProductImage();
+            image.setProduct(product);
+            image.setImageNo(1);
+            image.setImage(java.util.Base64.getDecoder().decode(PLACEHOLDER_PNG_BASE64));
+            productImageRepository.save(image);
+        }
+
+        boolean hasStock = stockRepository.findAll().stream()
+                .anyMatch(s -> s.getProduct() != null
+                        && s.getWarehouse() != null
+                        && productName.equals(s.getProduct().getProductName())
+                        && "東京倉庫".equals(s.getWarehouse().getWarehouseName()));
+
+        if (!hasStock) {
+            Stock stock = new Stock();
+            stock.setProduct(product);
+            stock.setWarehouse(warehouse);
+            stock.setQuantity(quantity);
+            stockRepository.save(stock);
+        }
     }
 }
