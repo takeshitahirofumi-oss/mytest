@@ -88,7 +88,7 @@ public class DataLoader {
 
         boolean hasImage = productImageRepository.findAll().stream()
                 .anyMatch(img -> img.getProduct() != null
-                        && productName.equals(img.getProduct().getProductName())
+                && Objects.equals(img.getProduct().getProductId(), product.getProductId())
                         && Integer.valueOf(1).equals(img.getImageNo()));
 
         if (!hasImage) {
@@ -102,8 +102,8 @@ public class DataLoader {
         boolean hasStock = stockRepository.findAll().stream()
                 .anyMatch(s -> s.getProduct() != null
                         && s.getWarehouse() != null
-                        && productName.equals(s.getProduct().getProductName())
-                        && "東京倉庫".equals(s.getWarehouse().getWarehouseName()));
+                && Objects.equals(s.getProduct().getProductId(), product.getProductId())
+                && Objects.equals(s.getWarehouse().getWarehouseId(), warehouse.getWarehouseId()));
 
         if (!hasStock) {
             Stock stock = new Stock();

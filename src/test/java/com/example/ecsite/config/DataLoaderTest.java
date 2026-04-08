@@ -147,6 +147,7 @@ class DataLoaderTest {
         area.setAreaName("東日本");
 
         Warehouse warehouse = new Warehouse();
+        warehouse.setWarehouseId(1L);
         warehouse.setWarehouseName("東京倉庫");
         warehouse.setArea(area);
 
@@ -154,10 +155,12 @@ class DataLoaderTest {
         category.setCategoryName("家電");
 
         Product product1 = new Product();
+        product1.setProductId(1L);
         product1.setProductName("サンプルテレビ");
         product1.setCategory(category);
 
         Product product2 = new Product();
+        product2.setProductId(2L);
         product2.setProductName("サンプル冷蔵庫");
         product2.setCategory(category);
 
